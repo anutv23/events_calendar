@@ -1,3 +1,4 @@
+
 import 'package:events_calendar/model/event_data_source.dart';
 import 'package:events_calendar/page/event_viewing_page.dart';
 import 'package:events_calendar/provider/event_provider.dart';
@@ -5,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
+import 'package:velocity_x/velocity_x.dart';
+
 
 class TasksWidget extends StatefulWidget {
   @override
@@ -31,14 +34,22 @@ class _TasksWidgetState extends State<TasksWidget> {
             fontSize: 15, color: Colors.black, fontWeight: FontWeight.bold),
       ),
       child: SfCalendar(
-        view: CalendarView.timelineDay,
+        view:CalendarView.schedule,
+        scheduleViewSettings: ScheduleViewSettings(
+            appointmentItemHeight: 70,
+            hideEmptyScheduleWeek: true,
+
+            appointmentTextStyle: TextStyle(
+                fontSize: 12, fontWeight: FontWeight.w500, color: Colors.lime)
+        ),
+        // view: CalendarView.timelineDay,
         dataSource: EventDataSource(provider.events),
         initialDisplayDate: provider.selectedDate,
         timeSlotViewSettings: TimeSlotViewSettings(
             startHour: 9,
-            endHour: 19,
-            timeInterval: Duration(minutes: 30),
-            timeFormat: 'h:mm'),
+            endHour: 21,
+            timeInterval: Duration(minutes: 15),
+            timeFormat: 'h:mm a'),
         appointmentBuilder: appointmentBuilder,
         headerHeight: 0,
         todayHighlightColor: Colors.blue,
@@ -63,17 +74,28 @@ class _TasksWidgetState extends State<TasksWidget> {
       height: details.bounds.height,
       decoration: BoxDecoration(
         color: event.backgroundColor.withOpacity(0.5),
+
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Center(
-        child: Text(
-          event.title,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-              color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            event.title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+                color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
+          ).p4(),
+          Text(
+            '${event.from.hour}:${event.from.minute.toString().padLeft(2,'0')} to ${event.to.hour}:${event.to.minute.toString().padLeft(2,'0')}',
+            style: TextStyle(
+              color: Colors.black54, fontSize: 12,),
+          ),
+
+        ],
+      ).pOnly(left: 10,top: 2),
     );
   }
 }

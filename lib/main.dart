@@ -1,4 +1,5 @@
 import 'package:events_calendar/page/event_editing_page.dart';
+
 import 'package:events_calendar/provider/event_provider.dart';
 import 'package:events_calendar/widget/calendar_widget.dart';
 import 'package:flutter/material.dart';
@@ -18,10 +19,10 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         themeMode: ThemeMode.light,
         theme: ThemeData.light().copyWith(
-          accentColor: Colors.lightBlue,
-          primaryColor: Colors.amber,
+          accentColor: Colors.orange,
+          primaryColor: Colors.orangeAccent,
         ),
-
+//home: ClientDetails(),
         //title: title,
         home: MainPage(),
       ),
@@ -38,9 +39,10 @@ class MainPage extends StatelessWidget {
         centerTitle: true,
       ),
       body: CalendarWidget(),
+      // body: ClientDetails(),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        backgroundColor: Colors.amber,
+        backgroundColor: Colors.orangeAccent,
         onPressed: () => Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => EventEditingPage())),
       ),

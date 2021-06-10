@@ -1,11 +1,10 @@
 import 'package:events_calendar/model/event.dart';
 import 'package:events_calendar/provider/event_provider.dart';
 import 'package:events_calendar/utils.dart';
-import 'package:events_calendar/widget/client_dropdown.dart';
-import 'package:events_calendar/widget/meetingtype_dropdown.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:velocity_x/velocity_x.dart';
 
 class EventEditingPage extends StatefulWidget {
   final Event? event;
@@ -24,6 +23,40 @@ class _EventEditingPageState extends State<EventEditingPage> {
   late DateTime fromDate;
   late DateTime toDate;
   final titleController = TextEditingController();
+
+  int _user = 1;
+  var users = <String>[
+    'Surgeon',
+    'Hospital',
+  ];
+
+  int _userTerritory = 1;
+  var usersTerritory = <String>[
+    'Mumbai',
+    'Patna',
+    'Bengaluru',
+  ];
+
+  int _userState = 1;
+  var usersState = <String>[
+    'Maharashtra',
+    'Karnataka',
+    'Kerala',
+  ];
+
+  int _userIndSurg = 1;
+  var usersIndSurg = <String>[
+    'Neuro',
+    'Ortho',
+    'Plastic',
+    'Other',
+  ];
+
+  int _userMeetingType = 1;
+  var usersMeetingType = <String>[
+    'Intro',
+    'Ortho',
+  ];
 
   @override
   void initState() {
@@ -53,62 +86,83 @@ class _EventEditingPageState extends State<EventEditingPage> {
     return Scaffold(
       appBar: AppBar(
         leading: CloseButton(),
+        title: "Meeting Schedular".text.makeCentered(),
         actions: buildEditingActions(),
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(12),
+      body: SafeArea(
         child: Form(
           key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: buildClientType(),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: buildMeetingType(),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 18,
-              ),
-              buildTitle(),
-              SizedBox(
-                height: 12,
-              ),
-              buildDateTimePickers(),
-              SizedBox(
-                height: 12,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Container(
-                      height: 40,
-                      width: 130,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: Colors.amber),
-                      child: TextButton(
-                          onPressed: surgeonAdd, child: Text("Add Surgeon"))),
-                  Container(
-                      height: 40,
-                      width: 130,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: Colors.amber),
-                      child: TextButton(
-                          onPressed: () {}, child: Text("Add Hospital"))),
-                ],
-              )
-            ],
-          ),
+          child: Card(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                VxBox(child: "Book Appointment:".text.bold.makeCentered())
+                    .gray200
+                    .height(40)
+                    .width(context.screenWidth - 50)
+                    .make()
+                    .card
+                    .elevation(4)
+                    .shadowColor(Colors.grey)
+                    .make()
+                    .px12()
+                    .py12(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: buildClientType(),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: buildMeetingType(),
+                    ),
+                  ],
+                ),
+                18.heightBox,
+                buildTitle(),
+                12.heightBox,
+                buildDateTimePickers().px24(),
+                12.heightBox,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    VxBox(
+                            child: TextButton(
+                                onPressed: surgeonAdd,
+                                child: "Add Surgeon"
+                                    .text
+                                    .color(Colors.black)
+                                    .make()))
+                        .height(40)
+                        .width(130)
+                        .color(Colors.orangeAccent)
+                        .make()
+                        .card
+                        .elevation(4)
+                        .shadowColor(Colors.grey)
+                        .make(),
+                    VxBox(
+                            child: TextButton(
+                                onPressed: hospitalAdd,
+                                child: "Add Hospital"
+                                    .text
+                                    .color(Colors.black)
+                                    .make()))
+                        .height(40)
+                        .width(130)
+                        .color(Colors.orangeAccent)
+                        .make()
+                        .card
+                        .elevation(4)
+                        .shadowColor(Colors.grey)
+                        .make(),
+                  ],
+                )
+              ],
+            ).p24().scrollVertical(),
+          ).p8(),
         ),
       ),
     );
@@ -117,28 +171,38 @@ class _EventEditingPageState extends State<EventEditingPage> {
   List<Widget> buildEditingActions() => [
         ElevatedButton.icon(
           style: ElevatedButton.styleFrom(
-              primary: Colors.transparent, shadowColor: Colors.black),
+            primary: Colors.transparent,
+            // shadowColor: Colors.orange
+          ),
           onPressed: saveForm,
           icon: Icon(Icons.done),
-          label: Text('SAVE'),
+          label: 'SAVE'.text.make(),
         ),
       ];
 
-  Widget buildTitle() => TextFormField(
-        style: TextStyle(fontSize: 15),
-        decoration: InputDecoration(
-          border: UnderlineInputBorder(),
-          hintText: 'Enter Client Name ',
+  Widget buildTitle() => VxBox(
+          child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 10.0,
         ),
-        onFieldSubmitted: (_) => saveForm(),
-        validator: (title) =>
-            title != null && title.isEmpty ? 'Field cannot be empty' : null,
-        controller: titleController,
-      );
+        child: TextFormField(
+          style: TextStyle(fontSize: 15),
+          decoration: InputDecoration(
+
+              //  border: UnderlineInputBorder(),
+              hintText: 'Enter Client Name ',
+              hintStyle: TextStyle(color: Colors.grey)),
+          onFieldSubmitted: (_) => saveForm(),
+          validator: (title) =>
+              title != null && title.isEmpty ? 'Field cannot be empty' : null,
+          controller: titleController,
+        ),
+      )).white.shadowMd.makeCentered().h(50).px12();
 
   Widget buildDateTimePickers() => Column(
         children: [
-          buildFrom(),
+          buildFrom().py12(),
+          12.heightBox,
           buildTo(),
         ],
       );
@@ -146,6 +210,7 @@ class _EventEditingPageState extends State<EventEditingPage> {
   Widget buildFrom() => buildHeader(
         header: 'Start:',
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Expanded(
                 flex: 2,
@@ -186,7 +251,8 @@ class _EventEditingPageState extends State<EventEditingPage> {
     required VoidCallback onClicked,
   }) =>
       ListTile(
-        title: Text(text),
+        //  contentPadding: EdgeInsets.only(left: 25,top: 5),
+        title: text.text.color(Colors.grey).sm.center.make(),
         trailing: Icon(Icons.arrow_drop_down),
         onTap: onClicked,
       );
@@ -194,10 +260,16 @@ class _EventEditingPageState extends State<EventEditingPage> {
   buildHeader({required String header, required Widget child}) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            header,
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
+          VxBox(child: header.text.semiBold.size(12).makeCentered())
+              .height(20)
+              .width(50)
+              .make()
+              .card
+              .elevation(4)
+              .shadowColor(Colors.grey)
+              .make()
+              .px12()
+              .py2(),
           child,
         ],
       );
@@ -205,12 +277,14 @@ class _EventEditingPageState extends State<EventEditingPage> {
     final isValid = _formKey.currentState!.validate();
     if (isValid) {
       final event = Event(
-        title: titleController.text,
-        description: 'Meeting Type',
-        from: fromDate,
-        to: toDate,
-        // isAllDay: false
-      );
+          title: titleController.text,
+          description: users[_user],
+          meetingType: usersMeetingType[_userMeetingType],
+          from: fromDate,
+          to: toDate,
+          backgroundColor: Colors.lightGreen
+          // isAllDay: false
+          );
 
       final isEditing = widget.event != null;
 
@@ -274,278 +348,569 @@ class _EventEditingPageState extends State<EventEditingPage> {
     }
   }
 
-  Widget buildClientType() => Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-      shadowColor: Colors.grey,
-      elevation: 10.0,
-      //  margin: EdgeInsets.fromLTRB(5.0, 10.0, 150.0, 0.0),
-      child: ClientType());
+  Widget buildClientType() => VxBox(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                "Client Type:".text.semiBold.size(12).makeCentered(),
+                "*".text.semiBold.color(Colors.red).make().py2(),
+                15.widthBox,
+                DropdownButton<String>(
+                  hint: new Text('Select Client:'),
+                  icon: Icon(Icons.arrow_drop_down),
+                  iconSize: 20,
+                  elevation: 16,
+                  style: TextStyle(color: Colors.blue, fontSize: 12),
+                  underline:
+                      VxBox().height(2).color(Colors.orangeAccent).make(),
+                  value: _user == null ? null : users[_user],
+                  items: users.map((String value) {
+                    return new DropdownMenuItem<String>(
+                      value: value,
+                      child: value.text.color(Colors.grey).sm.center.make(),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _user = users.indexOf(value!);
+                    });
+                  },
+                )
+              ],
+            ),
+          ],
+        ),
+      )
+          .height(50)
+          .make()
+          .card
+          .elevation(4)
+          .shadowColor(Colors.grey)
+          .make()
+          .px12()
+          .py2();
 
-  Widget buildMeetingType() => Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-      shadowColor: Colors.grey,
-      elevation: 10.0,
-      //    margin: EdgeInsets.fromLTRB(5.0, 10.0, 150.0, 0.0),
-      child: MeetingType());
+  Widget buildMeetingType() => VxBox(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                "Meeting Type:".text.semiBold.size(12).makeCentered(),
+                "*".text.semiBold.color(Colors.red).make().py2(),
+                15.widthBox,
+                DropdownButton<String>(
+                  hint: new Text('Select one:'),
+                  icon: Icon(Icons.arrow_drop_down),
+                  iconSize: 20,
+                  elevation: 16,
+                  style: TextStyle(color: Colors.blue, fontSize: 12),
+                  underline:
+                      VxBox().height(2).color(Colors.orangeAccent).make(),
+                  value: _userMeetingType == null
+                      ? null
+                      : usersMeetingType[_userMeetingType],
+                  items: usersMeetingType.map((String value) {
+                    return new DropdownMenuItem<String>(
+                      value: value,
+                      child: value.text.color(Colors.grey).sm.center.make(),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _userMeetingType = usersMeetingType.indexOf(value!);
+                    });
+                  },
+                )
+              ],
+            ),
+          ],
+        ),
+      )
+          .height(50)
+          .make()
+          .card
+          .elevation(4)
+          .shadowColor(Colors.grey)
+          .make()
+          .px12()
+          .py2();
 
-  Future surgeonAdd() async {
-    int _value = 1;
+  surgeonAdd() {
     showDialog(
         context: context,
         builder: (context) => Dialog(
-            child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  VxBox(child: "Add Surgeon".text.bold.makeCentered())
+                      .gray200
+                      .height(40)
+                      .width(context.screenWidth)
+                      .make()
+                      .p8(),
+                  Column(
                     children: [
-                      Center(
-                        child: Text(
-                          "Add Surgeon",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 20),
-                        ),
+                      Row(
+                        children: [
+                          "Name:".text.semiBold.size(12).makeCentered().px8(),
+                          "*".text.semiBold.color(Colors.red).make().py2(),
+                        ],
                       ),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 15, left: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      VxBox(child: TextFormField())
+                          .make()
+                          .card
+                          .elevation(4)
+                          .shadowColor(Colors.grey)
+                          .make()
+                          .h(40)
+                          .p8()
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      VxBox(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Row(
-                              children: [
-                                Text("Name",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15)),
-                                Text(
-                                  "*",
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              ],
+                            "Territory:"
+                                .text
+                                .semiBold
+                                .size(12)
+                                .makeCentered()
+                                .px4(),
+                            "*"
+                                .text
+                                .semiBold
+                                .color(Colors.red)
+                                .make()
+                                .py2()
+                                .px4(),
+                            15.widthBox,
+                            DropdownButton<String>(
+                              hint: new Text('Select one:'),
+                              icon: Icon(Icons.arrow_drop_down),
+                              iconSize: 20,
+                              elevation: 16,
+                              style:
+                                  TextStyle(color: Colors.blue, fontSize: 12),
+                              underline: VxBox()
+                                  .height(2)
+                                  .color(Colors.orangeAccent)
+                                  .make(),
+                              value: _userTerritory == null
+                                  ? null
+                                  : usersTerritory[_userTerritory],
+                              items: usersTerritory.map((String value) {
+                                return new DropdownMenuItem<String>(
+                                  value: value,
+                                  child: value.text
+                                      .color(Colors.grey)
+                                      .sm
+                                      .center
+                                      .make(),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  _userTerritory =
+                                      usersTerritory.indexOf(value!);
+                                });
+                              },
                             ),
-                            TextFormField(
-                              //controller: ,
-                              decoration: InputDecoration(
-                                labelText: "Enter Name",
-                              ),
+                          ],
+                        ),
+                      )
+                          .height(50)
+                          .width(170)
+                          .make()
+                          .card
+                          .elevation(4)
+                          .shadowColor(Colors.grey)
+                          .make()
+                          .px8()
+                          .py8(),
+                      VxBox(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            "State:".text.semiBold.size(12).makeCentered(),
+                            "*".text.semiBold.color(Colors.red).make().py2(),
+                            15.widthBox,
+                            DropdownButton<String>(
+                              hint: new Text('Select one:'),
+                              icon: Icon(Icons.arrow_drop_down),
+                              iconSize: 20,
+                              elevation: 16,
+                              style:
+                                  TextStyle(color: Colors.blue, fontSize: 12),
+                              underline: VxBox()
+                                  .height(2)
+                                  .color(Colors.orangeAccent)
+                                  .make(),
+                              value: _userState == null
+                                  ? null
+                                  : usersState[_userState],
+                              items: usersState.map((String value) {
+                                return new DropdownMenuItem<String>(
+                                  value: value,
+                                  child: value.text
+                                      .color(Colors.grey)
+                                      .sm
+                                      .center
+                                      .make(),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  _userState = usersState.indexOf(value!);
+                                });
+                              },
                             )
                           ],
-                        ),
+                        ).p8(),
+                      )
+                          .height(50)
+                          .width(170)
+                          .make()
+                          .card
+                          .elevation(4)
+                          .shadowColor(Colors.grey)
+                          .make()
+                          .px8()
+                          .py8(),
+                    ],
+                  ),
+                  VxBox(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        "Industry Type / Surgeon Type:"
+                            .text
+                            .semiBold
+                            .size(12)
+                            .makeCentered(),
+                        "*".text.semiBold.color(Colors.red).make().px2().py2(),
+                        15.widthBox,
+                        DropdownButton<String>(
+                          hint: new Text('Select one:'),
+                          icon: Icon(Icons.arrow_drop_down),
+                          iconSize: 20,
+                          elevation: 16,
+                          style: TextStyle(color: Colors.blue, fontSize: 12),
+                          underline: VxBox()
+                              .height(2)
+                              .color(Colors.orangeAccent)
+                              .make(),
+                          value: _userIndSurg == null
+                              ? null
+                              : usersIndSurg[_userIndSurg],
+                          items: usersIndSurg.map((String value) {
+                            return new DropdownMenuItem<String>(
+                              value: value,
+                              child: value.text
+                                  .color(Colors.grey)
+                                  .sm
+                                  .center
+                                  .make(),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _userIndSurg = usersIndSurg.indexOf(value!);
+                            });
+                          },
+                        ).px4().expand(),
+                      ],
+                    ).p8(),
+                  )
+                      .height(50)
+                      .width(context.screenWidth)
+                      .make()
+                      .card
+                      .elevation(4)
+                      .shadowColor(Colors.grey)
+                      .make()
+                      .px8()
+                      .py8(),
+                  20.heightBox,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      VxBox(
+                              child: TextButton(
+                                  onPressed: () {},
+                                  child:
+                                      "Save".text.color(Colors.black).make()))
+                          .height(40)
+                          .width(100)
+                          .color(Colors.orangeAccent)
+                          .make()
+                          .card
+                          .elevation(4)
+                          .shadowColor(Colors.grey)
+                          .makeCentered(),
+                      VxBox(
+                              child: TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child:
+                                      "Cancel".text.color(Colors.black).make()))
+                          .height(40)
+                          .width(100)
+                          .color(Colors.orangeAccent)
+                          .make()
+                          .card
+                          .elevation(4)
+                          .shadowColor(Colors.grey)
+                          .makeCentered(),
+                    ],
+                  ),
+                ],
+              ).scrollVertical().p12(),
+            ));
+  }
+
+  hospitalAdd() {
+    showDialog(
+        context: context,
+        builder: (context) => Dialog(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  VxBox(child: "Add Hospital".text.bold.makeCentered())
+                      .gray200
+                      .height(40)
+                      .width(context.screenWidth)
+                      .make()
+                      .p8(),
+                  Column(
+                    children: [
+                      Row(
+                        children: [
+                          "Name:".text.semiBold.size(12).makeCentered().px8(),
+                          "*".text.semiBold.color(Colors.red).make().py2(),
+                        ],
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 15, left: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      VxBox(child: TextFormField())
+                          .make()
+                          .card
+                          .elevation(4)
+                          .shadowColor(Colors.grey)
+                          .make()
+                          .h(40)
+                          .p8()
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      VxBox(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Row(
-                              children: [
-                                Text("Territory",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15)),
-                                Text(
-                                  "*",
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              ],
-                            ),
-                            Container(
-                              alignment: Alignment.topLeft,
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.only(left: 10),
-                                    child: DropdownButton(
-                                        value: _value,
-                                        items: [
-                                          DropdownMenuItem(
-                                            child: Text("--Select --"),
-                                            value: 1,
-                                          ),
-                                          DropdownMenuItem(
-                                            child: Text("Mumbai"),
-                                            value: 2,
-                                          ),
-                                          DropdownMenuItem(
-                                            child: Text("Patna"),
-                                            value: 3,
-                                          ),
-                                          DropdownMenuItem(
-                                              child: Text("Bangalore"),
-                                              value: 4),
-                                          DropdownMenuItem(
-                                              child: Text("Jamshedpur"),
-                                              value: 5)
-                                        ],
-                                        onChanged: (value) {
-                                          setState(() {
-                                            // _value = value;
-                                          });
-                                        }),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 15, left: 10),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text("State",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 15)),
-                                      Text(
-                                        "*",
-                                        style: TextStyle(color: Colors.red),
-                                      ),
-                                    ],
-                                  ),
-                                  Container(
-                                    alignment: Alignment.topLeft,
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          padding: EdgeInsets.only(left: 10),
-                                          child: DropdownButton(
-                                              value: _value,
-                                              items: [
-                                                DropdownMenuItem(
-                                                  child: Text("--Select --"),
-                                                  value: 1,
-                                                ),
-                                                DropdownMenuItem(
-                                                  child: Text("Maharashtra"),
-                                                  value: 2,
-                                                ),
-                                                DropdownMenuItem(
-                                                  child: Text("Bihar"),
-                                                  value: 3,
-                                                ),
-                                                DropdownMenuItem(
-                                                    child: Text("Krnataka"),
-                                                    value: 4),
-                                                DropdownMenuItem(
-                                                    child: Text("Jharkhand"),
-                                                    value: 5)
-                                              ],
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  // _value = value;
-                                                });
-                                              }),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 15, left: 10),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text("Industry Type/Surgeon Type",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 15)),
-                                      Text(
-                                        "*",
-                                        style: TextStyle(color: Colors.red),
-                                      ),
-                                    ],
-                                  ),
-                                  Container(
-                                    alignment: Alignment.topLeft,
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          padding: EdgeInsets.only(left: 10),
-                                          child: DropdownButton(
-                                              value: _value,
-                                              items: [
-                                                DropdownMenuItem(
-                                                  child: Text("--Select --"),
-                                                  value: 1,
-                                                ),
-                                                DropdownMenuItem(
-                                                  child: Text("Neuro"),
-                                                  value: 2,
-                                                ),
-                                                DropdownMenuItem(
-                                                    child: Text(
-                                                        "Oral & Maxillofacial"),
-                                                    value: 3),
-                                                DropdownMenuItem(
-                                                    child: Text("plastic"),
-                                                    value: 4),
-                                                DropdownMenuItem(
-                                                    child: Text("orthopedic"),
-                                                    value: 5),
-                                                DropdownMenuItem(
-                                                    child: Text("other"),
-                                                    value: 6)
-                                              ],
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  // _value = value;
-                                                });
-                                              }),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 20, left: 70),
-                              child: Center(
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  child: Row(
-                                    //   mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      InkWell(
-                                        onTap: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: Container(
-                                            height: 25,
-                                            width: 50,
-                                            decoration: BoxDecoration(
-                                                color: Colors.grey),
-                                            child:
-                                                Center(child: Text("Cancel"))),
-                                      ),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      InkWell(
-                                        onTap: () {},
-                                        child: Container(
-                                            height: 25,
-                                            width: 50,
-                                            decoration: BoxDecoration(
-                                                color: Colors.amber),
-                                            child: Center(child: Text("Save"))),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                            "Territory:"
+                                .text
+                                .semiBold
+                                .size(12)
+                                .makeCentered()
+                                .px4(),
+                            "*"
+                                .text
+                                .semiBold
+                                .color(Colors.red)
+                                .make()
+                                .py2()
+                                .px4(),
+                            15.widthBox,
+                            DropdownButton<String>(
+                              hint: new Text('Select one:'),
+                              icon: Icon(Icons.arrow_drop_down),
+                              iconSize: 20,
+                              elevation: 16,
+                              style:
+                                  TextStyle(color: Colors.blue, fontSize: 12),
+                              underline: VxBox()
+                                  .height(2)
+                                  .color(Colors.orangeAccent)
+                                  .make(),
+                              value: _userTerritory == null
+                                  ? null
+                                  : usersTerritory[_userTerritory],
+                              items: usersTerritory.map((String value) {
+                                return new DropdownMenuItem<String>(
+                                  value: value,
+                                  child: value.text
+                                      .color(Colors.grey)
+                                      .sm
+                                      .center
+                                      .make(),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  _userTerritory =
+                                      usersTerritory.indexOf(value!);
+                                });
+                              },
                             ),
                           ],
                         ),
-                      ),
-                    ]))));
+                      )
+                          .height(50)
+                          .width(170)
+                          .make()
+                          .card
+                          .elevation(4)
+                          .shadowColor(Colors.grey)
+                          .make()
+                          .px8()
+                          .py8(),
+                      VxBox(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            "State:".text.semiBold.size(12).makeCentered(),
+                            "*".text.semiBold.color(Colors.red).make().py2(),
+                            15.widthBox,
+                            DropdownButton<String>(
+                              hint: new Text('Select one:'),
+                              icon: Icon(Icons.arrow_drop_down),
+                              iconSize: 20,
+                              elevation: 16,
+                              style:
+                                  TextStyle(color: Colors.blue, fontSize: 12),
+                              underline: VxBox()
+                                  .height(2)
+                                  .color(Colors.orangeAccent)
+                                  .make(),
+                              value: _userState == null
+                                  ? null
+                                  : usersState[_userState],
+                              items: usersState.map((String value) {
+                                return new DropdownMenuItem<String>(
+                                  value: value,
+                                  child: value.text
+                                      .color(Colors.grey)
+                                      .sm
+                                      .center
+                                      .make(),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  _userState = usersState.indexOf(value!);
+                                });
+                              },
+                            )
+                          ],
+                        ).p8(),
+                      )
+                          .height(50)
+                          .width(170)
+                          .make()
+                          .card
+                          .elevation(4)
+                          .shadowColor(Colors.grey)
+                          .make()
+                          .px8()
+                          .py8(),
+                    ],
+                  ),
+                  VxBox(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        "Industry Type / Hospital Type:"
+                            .text
+                            .semiBold
+                            .size(12)
+                            .makeCentered(),
+                        "*".text.semiBold.color(Colors.red).make().py2(),
+                        15.widthBox,
+                        DropdownButton<String>(
+                          hint: new Text('Select one:'),
+                          icon: Icon(Icons.arrow_drop_down),
+                          iconSize: 20,
+                          elevation: 16,
+                          style: TextStyle(color: Colors.blue, fontSize: 12),
+                          underline: VxBox()
+                              .height(2)
+                              .color(Colors.orangeAccent)
+                              .make(),
+                          value: _userIndSurg == null
+                              ? null
+                              : usersIndSurg[_userIndSurg],
+                          items: usersIndSurg.map((String value) {
+                            return new DropdownMenuItem<String>(
+                              value: value,
+                              child: value.text
+                                  .color(Colors.grey)
+                                  .sm
+                                  .center
+                                  .make(),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _userIndSurg = usersIndSurg.indexOf(value!);
+                            });
+                          },
+                        ).expand(),
+                      ],
+                    ).p8(),
+                  )
+                      .height(50)
+                      .width(context.screenWidth)
+                      .make()
+                      .card
+                      .elevation(4)
+                      .shadowColor(Colors.grey)
+                      .make()
+                      .px8()
+                      .py8(),
+                  20.heightBox,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      VxBox(
+                              child: TextButton(
+                                  onPressed: () {},
+                                  child:
+                                      "Save".text.color(Colors.black).make()))
+                          .height(40)
+                          .width(100)
+                          .color(Colors.orangeAccent)
+                          .make()
+                          .card
+                          .elevation(4)
+                          .shadowColor(Colors.grey)
+                          .makeCentered(),
+                      VxBox(
+                              child: TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child:
+                                      "Cancel".text.color(Colors.black).make()))
+                          .height(40)
+                          .width(100)
+                          .color(Colors.orangeAccent)
+                          .make()
+                          .card
+                          .elevation(4)
+                          .shadowColor(Colors.grey)
+                          .makeCentered(),
+                    ],
+                  ),
+                ],
+              ).scrollVertical().p12(),
+            ));
   }
 }

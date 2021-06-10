@@ -13,14 +13,17 @@ class CalendarWidget extends StatelessWidget {
 
     return SfCalendar(
       dataSource: EventDataSource(events),
-      view: CalendarView.month,
-      monthViewSettings: MonthViewSettings(
-        showAgenda: true,
-        agendaItemHeight: 70,
+      view: CalendarView.week,
+      timeSlotViewSettings: TimeSlotViewSettings(
+       // timeIntervalHeight: 60,
+       // timeIntervalWidth: 50,
+        timeInterval:Duration(minutes: 15) ,
+              timeFormat: 'h:mm a'
       ),
+
       initialSelectedDate: DateTime.now(),
       cellBorderColor: Colors.transparent,
-      onLongPress: (details) {
+      onTap: (details) {
         final provider = Provider.of<EventProvider>(context, listen: false);
 
         provider.setDate(details.date!);
